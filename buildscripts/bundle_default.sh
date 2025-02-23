@@ -86,6 +86,8 @@ pwd
 
 ls
 
+ls output
+
 # --------------------------------------------------
 
 #zip -r debug-symbols-default.zip prefix/*/lib
