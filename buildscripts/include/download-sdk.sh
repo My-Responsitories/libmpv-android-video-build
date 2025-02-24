@@ -66,6 +66,15 @@ echo y | sdkmanager \
 	"ndk;${v_ndk}" \
 	"cmake;3.22.1"
 
+pwd
+
+ls android-sdk-linux
+ls android-sdk-linux/ndk
+ls android-sdk-linux/ndk/toolchains
+ls android-sdk-linux/ndk/toolchains/llvm
+ls android-sdk-linux/ndk/toolchains/llvm/prebuilt
+ls /home/runner/work/libmpv-android-video-build/libmpv-android-video-build/buildscripts/sdk/android-sdk-linux/
+
 # gas-preprocessor
 mkdir -p bin
 $WGET "https://github.com/FFmpeg/gas-preprocessor/raw/master/gas-preprocessor.pl" \
