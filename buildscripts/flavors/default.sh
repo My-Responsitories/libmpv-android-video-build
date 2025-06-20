@@ -225,6 +225,7 @@ cpuflags=
 	--enable-filter=equalizer \
 	--enable-filter=yadif \
 	--enable-filter=bwdif \
+	--enable-filter=scale \
 	\
 	--enable-protocol=async \
 	--enable-protocol=cache \
