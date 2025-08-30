@@ -9,7 +9,7 @@ mkdir -p deps && cd deps
 git config --global advice.detachedHead false
 
 # mbedtls
-[ ! -d mbedtls ] && git clone --depth 1 --branch v$v_mbedtls https://github.com/Mbed-TLS/mbedtls.git mbedtls
+[ ! -d mbedtls ] && git clone --depth 1 --branch v$v_mbedtls --recurse-submodules https://github.com/Mbed-TLS/mbedtls.git mbedtls
 
 # dav1d
 [ ! -d dav1d ] && git clone --depth 1 --branch $v_dav1d https://code.videolan.org/videolan/dav1d.git dav1d
@@ -55,18 +55,18 @@ see <ndk>/sources/third_party/shaderc
 HEREDOC
 
 # libplacebo
-[ ! -d libplacebo ] && git clone --depth 1 --branch v$v_libplacebo --recursive https://code.videolan.org/videolan/libplacebo.git libplacebo
+[ ! -d libplacebo ] && git clone --depth 1 --branch v$v_libplacebo --recurse-submodules https://code.videolan.org/videolan/libplacebo.git libplacebo
 
 # mpv
-[ ! -d mpv ] && git clone https://github.com/mpv-player/mpv.git mpv && cd mpv && git reset --hard 02254b92dd237f03aa0a151c2a68778c4ea848f9 && cd ..
+[ ! -d mpv ]  && git clone --depth 1 --branch v$v_mpv https://github.com/mpv-player/mpv.git mpv
 
 # fftools_ffi
 [ ! -d fftools_ffi ] && git clone --depth 1 --branch main https://github.com/moffatman/fftools-ffi.git fftools_ffi
 
 # media-kit-android-helper
-[ ! -d media-kit-android-helper ] && git clone --depth 1 --branch fix/no-dup-fd https://github.com/media-kit/media-kit-android-helper.git
+[ ! -d media-kit-android-helper ] && git clone --depth 1 --branch main https://github.com/media-kit/media-kit-android-helper.git media-kit-android-helper
 
 # media_kit
-[ ! -d media_kit ] && git clone --depth 1 --single-branch --branch media_kit-v1.1.10 https://github.com/alexmercerind/media_kit.git
+[ ! -d media_kit ] && git clone --depth 1 --single-branch --branch version_1.2.5 https://github.com/My-Responsitories/media-kit.git media_kit
 
 cd ..
