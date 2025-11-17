@@ -224,6 +224,7 @@ cpuflags=
 	--enable-filter=aresample \
  	--enable-filter=dynaudnorm \
  	--enable-filter=loudnorm \
+ 	--enable-filter=alimiter \
 	\
 	--enable-protocol=async \
 	--enable-protocol=cache \
