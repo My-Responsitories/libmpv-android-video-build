@@ -9,18 +9,15 @@ v_sdk_build_tools=36.0.0
 v_cmake=4.1.1
 
 v_libass=0.17.4
-v_harfbuzz=11.5.0
+v_harfbuzz=12.3.0
 v_fribidi=1.0.16
 v_freetype=2-14-1
-v_mbedtls=3.6.4
+v_mbedtls=3.6.5
 v_libplacebo=7.351.0
-v_dav1d=1.5.1
-v_libxml2=2.10.3
-v_ffmpeg=8.0
-v_mpv=0.40.0
-v_libogg=1.3.5
-v_libvorbis=1.3.7
-v_libvpx=1.13
+v_dav1d=1.5.3
+v_ffmpeg=8.0.1
+v_mpv=0.41.0
+v_libvpx=1.15
 v_libwebp=1.6.0
 
 
@@ -29,11 +26,10 @@ v_libwebp=1.6.0
 
 dep_mbedtls=()
 dep_dav1d=()
-dep_libvorbis=(libogg)
 if [ -n "$ENCODERS_GPL" ]; then
-	dep_ffmpeg=(mbedtls dav1d libxml2 libvorbis libvpx libx264 libwebp)
+	dep_ffmpeg=(mbedtls dav1d libvpx libx264 libwebp)
 else
-	dep_ffmpeg=(mbedtls dav1d libxml2 libwebp)
+	dep_ffmpeg=(mbedtls dav1d libwebp)
 fi
 dep_freetype2=()
 dep_fribidi=()

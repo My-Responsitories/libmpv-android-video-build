@@ -7,8 +7,8 @@ if [ ! -f "prefix" ]; then
   sudo rm -r prefix
 fi
 
-./download.sh
-./patch.sh
+./download.sh || exit 1
+./patch.sh || exit 1
 
 # --------------------------------------------------
 
@@ -91,4 +91,4 @@ cd ../../../../../../../../..
 
 # --------------------------------------------------
 
-zip -q -r debug-symbols-default.zip prefix/*/lib
+# zip -q -r debug-symbols-default.zip prefix/*/lib

@@ -72,8 +72,6 @@ cpuflags=
 	\
 	--enable-libdav1d \
 	\
-	--enable-libxml2 \
-	\
 	--enable-avutil \
 	--enable-avcodec \
 	--enable-avfilter \
@@ -122,7 +120,6 @@ cpuflags=
 	--enable-decoder=shorten \
 	--enable-decoder=tak \
 	--enable-decoder=tta \
-	--enable-decoder=vorbis \
 	--enable-decoder=wavpack \
 	--enable-decoder=wma* \
 	--enable-decoder=pcm* \
@@ -179,7 +176,6 @@ cpuflags=
 	--enable-demuxer=m4v \
 	--enable-demuxer=mp3 \
 	--enable-demuxer=mpc* \
-	--enable-demuxer=ogg \
 	--enable-demuxer=pcm* \
 	--enable-demuxer=rm \
 	--enable-demuxer=shorten \
@@ -216,7 +212,6 @@ cpuflags=
 	--enable-parser=gsm \
 	--enable-parser=mpegaudio \
 	--enable-parser=tak \
-	--enable-parser=vorbis \
  	--enable-parser=dca \
 	\
 	--enable-filter=overlay \

@@ -9,7 +9,6 @@ if [ "$1" == "build" ]; then
 	true
 elif [ "$1" == "clean" ]; then
 	rm -rf $build
-	make clean
 	exit 0
 else
 	exit 255

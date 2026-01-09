@@ -7,6 +7,8 @@
 [ -z "$TRAVIS" ] && TRAVIS=0 # skip steps not required for CI?
 [ -z "$WGET" ] && WGET=wget # possibility of calling wget differently
 
+set -euo pipefail
+
 if [ "$os" == "linux" ]; then
 	if [ $TRAVIS -eq 0 ]; then
 		hash yum &>/dev/null && {
