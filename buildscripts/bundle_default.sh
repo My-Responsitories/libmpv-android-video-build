@@ -23,7 +23,7 @@ cp flavors/default.sh scripts/ffmpeg.sh
 
 # --------------------------------------------------
 
-echo "chdir media-kit-android-helpe"
+echo "chdir media-kit-android-helper"
 cd deps/media-kit-android-helper || exit 1
 
 sudo chmod +x gradlew
@@ -53,7 +53,10 @@ flutter pub get
 # Configure gradle to only build arm64-v8a
 if [ -f "android/app/build.gradle" ]; then
   if ! grep -q "ndk.abiFilters" "android/app/build.gradle"; then
-    sed -i '/defaultConfig {/a\        ndk {\n            abiFilters "arm64-v8a"\n        }' "android/app/build.gradle"
+    # Insert ABI filter configuration into build.gradle
+    awk '/defaultConfig \{/ {print; print "        ndk {"; print "            abiFilters \"arm64-v8a\""; print "        }"; next}1' \
+      "android/app/build.gradle" > "android/app/build.gradle.tmp" && \
+      mv "android/app/build.gradle.tmp" "android/app/build.gradle"
   fi
 fi
 
