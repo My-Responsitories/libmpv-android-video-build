@@ -6,7 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 cleanbuild=0
 nodeps=0
 target=mpv
-archs=(armv7l arm64 x86 x86_64)
+archs=(arm64)
 
 getdeps () {
 	varname="dep_${1//-/_}[*]"
@@ -17,40 +17,15 @@ loadarch () {
 	unset CC CXX CPATH LIBRARY_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH
 
 	local apilvl=24
-	# ndk_triple: what the toolchain actually is
-	# cc_triple: what Google pretends the toolchain is
-	if [ "$1" == "armv7l" ]; then
-		export ndk_suffix=
-		export ndk_triple=arm-linux-androideabi
-		cc_triple=armv7a-linux-androideabi$apilvl
-		prefix_name=armeabi-v7a
-	elif [ "$1" == "arm64" ]; then
-		export ndk_suffix=-arm64
-		export ndk_triple=aarch64-linux-android
-		cc_triple=$ndk_triple$apilvl
-		prefix_name=arm64-v8a
-	elif [ "$1" == "x86" ]; then
-		export ndk_suffix=-x86
-		export ndk_triple=i686-linux-android
-		cc_triple=$ndk_triple$apilvl
-		prefix_name=x86
-	elif [ "$1" == "x86_64" ]; then
-		export ndk_suffix=-x64
-		export ndk_triple=x86_64-linux-android
-		cc_triple=$ndk_triple$apilvl
-		prefix_name=x86_64
-	else
-		echo "Invalid architecture"
-		exit 1
-	fi
+	# arm64-v8a configuration
+	export ndk_suffix=-arm64
+	export ndk_triple=aarch64-linux-android
+	cc_triple=$ndk_triple$apilvl
+	prefix_name=arm64-v8a
 	export prefix_dir="$PWD/prefix/$prefix_name"
 	export native_dir="$PWD/../libmpv/src/main/jniLibs/$prefix_name"
 	export CC=$cc_triple-clang
-	if [[ "$1" == arm* ]]; then
-		export AS="$CC"
-	else
-		export AS="nasm"
-	fi
+	export AS="$CC"
 	export CXX=$cc_triple-clang++
 	export LDFLAGS="-Wl,-O3,--icf=safe -Wl,-z,max-page-size=16384"
 	export AR=llvm-ar
@@ -122,8 +97,7 @@ usage () {
 		"Usage: build.sh [options] [target]" \
 		"Builds the specified target (default: $target)" \
 		"-n             Do not build dependencies" \
-		"--clean        Clean build dirs before compiling" \
-		"--arch <arch>  Build for specified architecture (supported: armv7l, arm64, x86, x86_64)"
+		"--clean        Clean build dirs before compiling"
 	exit 0
 }
 
@@ -135,10 +109,6 @@ while [ $# -gt 0 ]; do
 		-n|--no-deps)
 		nodeps=1
 		;;
-		--arch)
-		shift
-		arch=$1
-		;;
 		-h|--help)
 		usage
 		;;
@@ -149,16 +119,10 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-if [ -z $arch ]; then
-  for arch in ${archs[@]}; do
-    loadarch $arch
-    setup_prefix
-    build $target
-  done
-else
+for arch in ${archs[@]}; do
   loadarch $arch
   setup_prefix
   build $target
-fi
+done
 
 exit 0

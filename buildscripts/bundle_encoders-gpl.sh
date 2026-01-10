@@ -27,14 +27,14 @@ cp flavors/encoders-gpl.sh scripts/ffmpeg.sh
 cd deps/media-kit-android-helper
 
 sudo chmod +x gradlew
+# Build all ABIs - the external media-kit-android-helper project doesn't properly support
+# the -Pandroid.injected.build.abi filter from command line, so we build all and extract only arm64-v8a
 ./gradlew assembleRelease
 
 unzip -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/arm64-v8a"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/armeabi-v7a/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/armeabi-v7a"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/x86/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/x86"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/x86_64/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/x86_64"
+mkdir -p "../../../libmpv/src/main/jniLibs/arm64-v8a"
+cp "app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/arm64-v8a/"
 
 cd ../..
 
@@ -50,12 +50,32 @@ fi
 
 flutter pub get
 
+# Configure gradle to only build arm64-v8a in the plugin's android build.gradle
+if [ -f "android/build.gradle" ]; then
+  if ! grep -q "abiFilters" "android/build.gradle"; then
+    # Insert ABI filter configuration into the plugin's build.gradle
+    awk '/android \{/ {print; print "    defaultConfig {"; print "        ndk {"; print "            abiFilters \"arm64-v8a\""; print "        }"; print "    }"; next}1' \
+      "android/build.gradle" > "android/build.gradle.tmp" && \
+      mv "android/build.gradle.tmp" "android/build.gradle"
+  fi
+fi
+
+# Also configure the example app's build.gradle
+if [ -f "example/android/app/build.gradle" ]; then
+  if ! grep -q "ndk.abiFilters" "example/android/app/build.gradle"; then
+    # Insert ABI filter configuration into build.gradle
+    awk '/defaultConfig \{/ {print; print "        ndk {"; print "            abiFilters \"arm64-v8a\""; print "        }"; next}1' \
+      "example/android/app/build.gradle" > "example/android/app/build.gradle.tmp" && \
+      mv "example/android/app/build.gradle.tmp" "example/android/app/build.gradle"
+  fi
+fi
+
 cp -a ../../mpv/libmpv/. src/include/
 
 cd example
 
 flutter clean
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 
 unzip -o build/app/outputs/apk/release/app-release.apk -d build/app/outputs/apk/release
 
@@ -67,9 +87,6 @@ rm -r lib/*/libapp.so
 rm -r lib/*/libflutter.so
 
 zip -r "encoders-gpl-arm64-v8a.jar"                lib/arm64-v8a
-zip -r "encoders-gpl-armeabi-v7a.jar"              lib/armeabi-v7a
-zip -r "encoders-gpl-x86.jar"                      lib/x86
-zip -r "encoders-gpl-x86_64.jar"                   lib/x86_64
 
 mkdir -p ../../../../../../../../../../output
 
