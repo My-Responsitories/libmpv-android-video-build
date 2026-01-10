@@ -50,6 +50,13 @@ fi
 
 flutter pub get
 
+# Configure gradle to only build arm64-v8a
+if [ -f "android/app/build.gradle" ]; then
+  if ! grep -q "ndk.abiFilters" "android/app/build.gradle"; then
+    sed -i '/defaultConfig {/a\        ndk {\n            abiFilters "arm64-v8a"\n        }' "android/app/build.gradle"
+  fi
+fi
+
 cp -a ../../mpv/include/mpv/. src/include/
 
 cd example || exit 1
