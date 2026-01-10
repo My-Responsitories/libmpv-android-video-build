@@ -27,7 +27,7 @@ echo "chdir media-kit-android-helpe"
 cd deps/media-kit-android-helper || exit 1
 
 sudo chmod +x gradlew
-./gradlew assembleRelease
+./gradlew assembleRelease -Pandroid.injected.build.abi=arm64-v8a
 
 unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
@@ -52,7 +52,7 @@ cp -a ../../mpv/include/mpv/. src/include/
 cd example || exit 1
 
 flutter clean
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 
 unzip -q -o build/app/outputs/apk/release/app-release.apk -d build/app/outputs/apk/release
 

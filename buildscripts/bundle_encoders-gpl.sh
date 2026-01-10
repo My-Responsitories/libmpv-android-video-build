@@ -27,7 +27,7 @@ cp flavors/encoders-gpl.sh scripts/ffmpeg.sh
 cd deps/media-kit-android-helper
 
 sudo chmod +x gradlew
-./gradlew assembleRelease
+./gradlew assembleRelease -Pandroid.injected.build.abi=arm64-v8a
 
 unzip -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
@@ -52,7 +52,7 @@ cp -a ../../mpv/libmpv/. src/include/
 cd example
 
 flutter clean
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 
 unzip -o build/app/outputs/apk/release/app-release.apk -d build/app/outputs/apk/release
 
