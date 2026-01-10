@@ -26,7 +26,7 @@ cp flavors/full.sh scripts/ffmpeg.sh
 cd deps/media-kit-android-helper
 
 sudo chmod +x gradlew
-./gradlew assembleRelease -Pandroid.injected.build.abi=arm64-v8a
+./gradlew assembleRelease
 
 unzip -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 

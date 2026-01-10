@@ -27,7 +27,7 @@ echo "chdir media-kit-android-helpe"
 cd deps/media-kit-android-helper || exit 1
 
 sudo chmod +x gradlew
-./gradlew assembleRelease -Pandroid.injected.build.abi=arm64-v8a
+./gradlew assembleRelease
 
 unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
