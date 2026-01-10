@@ -67,6 +67,7 @@ cpuflags=
 	--enable-hwaccels \
 	--enable-optimizations \
 	--enable-runtime-cpudetect \
+	--enable-lto \
 	\
 	--enable-mbedtls \
 	\
@@ -249,7 +250,7 @@ cpuflags=
 	\
 	--enable-network \
 
-make -j$cores
+make -j$cores V=1
 make DESTDIR="$prefix_dir" install
 
 ln -sf "$prefix_dir"/lib/libswresample.so "$native_dir"

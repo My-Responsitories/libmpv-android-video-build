@@ -18,7 +18,7 @@ mkdir -p _build$ndk_suffix
 cd _build$ndk_suffix
 
 ../configure \
-	CFLAGS=-fPIC CXXFLAGS=-fPIC \
+	CFLAGS="$OPT_CFLAGS" CXXFLAGS="$OPT_CXXFLAGS" \
 	--host=$ndk_triple \
 	--with-pic \
 	--disable-asm \
@@ -26,5 +26,5 @@ cd _build$ndk_suffix
 	--disable-shared \
 	--disable-require-system-font-provider
 
-make -j$cores
+make -j$cores V=1
 make DESTDIR="$prefix_dir" install

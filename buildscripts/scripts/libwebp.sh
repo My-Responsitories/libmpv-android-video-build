@@ -23,7 +23,8 @@ cmake .. \
 	-DENABLE_ENCRYPTION=ON \
 	-DCMAKE_PREFIX_PATH="$prefix_dir" \
 	-DUSE_ENCLIB=mbedtls \
-	-DCMAKE_PLATFORM_NO_VERSIONED_SONAME=ON
+	-DCMAKE_PLATFORM_NO_VERSIONED_SONAME=ON \
+	-DCMAKE_VERBOSE_MAKEFILE=ON
 
-make -j$cores
+make -j$cores VERBOSE=1
 make DESTDIR="$prefix_dir" install

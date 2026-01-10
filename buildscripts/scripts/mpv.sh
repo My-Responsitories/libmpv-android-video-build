@@ -29,7 +29,7 @@ meson setup $build --cross-file "$prefix_dir"/crossfile.txt \
 	-Dvulkan=disabled \
  	-Dmanpage-build=disabled
 
-ninja -C $build -j$cores
-DESTDIR="$prefix_dir" ninja -C $build install
+ninja -v -C $build -j$cores
+DESTDIR="$prefix_dir" ninja -v -C $build install
 
 ln -sf "$prefix_dir"/lib/libmpv.so "$native_dir"

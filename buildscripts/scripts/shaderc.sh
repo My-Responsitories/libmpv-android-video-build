@@ -21,7 +21,7 @@ abi=armeabi-v7a
 
 # build using the NDK's scripts, but keep object files in our build dir
 cd "$(dirname "$(which ndk-build)")/sources/third_party/shaderc"
-ndk-build -j$cores \
+ndk-build -j$cores V=1 \
 	NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk \
 	APP_PLATFORM=android-26 APP_STL=c++_shared APP_ABI=$abi \
 	NDK_APP_OUT="$builddir" NDK_APP_LIBS_OUT="$builddir/libs" \

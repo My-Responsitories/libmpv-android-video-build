@@ -27,3 +27,10 @@ toolchain=$(echo "$DIR/sdk/android-sdk-linux/ndk/$v_ndk/toolchains/llvm/prebuilt
 export PATH="$toolchain/bin:$DIR/sdk/android-sdk-linux/ndk/$v_ndk:$DIR/sdk/bin:$PATH"
 export ANDROID_HOME="$DIR/sdk/android-sdk-$os"
 unset ANDROID_SDK_ROOT ANDROID_NDK_ROOT
+
+# Common optimization flags for all builds
+export OPT_FLAGS="-O3 -DNDEBUG -flto"
+export OPT_CFLAGS="-O3 -fPIC -DNDEBUG -flto"
+export OPT_CXXFLAGS="-O3 -fPIC -DNDEBUG -flto"
+# Meson-compatible array format for crossfile
+export OPT_MESON_ARGS="['-O3', '-fPIC', '-DNDEBUG', '-flto']"
