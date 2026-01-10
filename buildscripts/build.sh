@@ -107,8 +107,7 @@ usage () {
 		"Usage: build.sh [options] [target]" \
 		"Builds the specified target (default: $target)" \
 		"-n             Do not build dependencies" \
-		"--clean        Clean build dirs before compiling" \
-		"--arch <arch>  Build for specified architecture (supported: arm64)"
+		"--clean        Clean build dirs before compiling"
 	exit 0
 }
 
@@ -120,10 +119,6 @@ while [ $# -gt 0 ]; do
 		-n|--no-deps)
 		nodeps=1
 		;;
-		--arch)
-		shift
-		arch=$1
-		;;
 		-h|--help)
 		usage
 		;;
@@ -134,16 +129,10 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-if [ -z $arch ]; then
-  for arch in ${archs[@]}; do
-    loadarch $arch
-    setup_prefix
-    build $target
-  done
-else
+for arch in ${archs[@]}; do
   loadarch $arch
   setup_prefix
   build $target
-fi
+done
 
 exit 0
