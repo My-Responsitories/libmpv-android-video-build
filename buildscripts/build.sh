@@ -6,7 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 cleanbuild=0
 nodeps=0
 target=mpv
-archs=(armv7l arm64 x86 x86_64)
+archs=(arm64)
 
 getdeps () {
 	varname="dep_${1//-/_}[*]"
@@ -19,26 +19,11 @@ loadarch () {
 	local apilvl=24
 	# ndk_triple: what the toolchain actually is
 	# cc_triple: what Google pretends the toolchain is
-	if [ "$1" == "armv7l" ]; then
-		export ndk_suffix=
-		export ndk_triple=arm-linux-androideabi
-		cc_triple=armv7a-linux-androideabi$apilvl
-		prefix_name=armeabi-v7a
-	elif [ "$1" == "arm64" ]; then
+	if [ "$1" == "arm64" ]; then
 		export ndk_suffix=-arm64
 		export ndk_triple=aarch64-linux-android
 		cc_triple=$ndk_triple$apilvl
 		prefix_name=arm64-v8a
-	elif [ "$1" == "x86" ]; then
-		export ndk_suffix=-x86
-		export ndk_triple=i686-linux-android
-		cc_triple=$ndk_triple$apilvl
-		prefix_name=x86
-	elif [ "$1" == "x86_64" ]; then
-		export ndk_suffix=-x64
-		export ndk_triple=x86_64-linux-android
-		cc_triple=$ndk_triple$apilvl
-		prefix_name=x86_64
 	else
 		echo "Invalid architecture"
 		exit 1
@@ -123,7 +108,7 @@ usage () {
 		"Builds the specified target (default: $target)" \
 		"-n             Do not build dependencies" \
 		"--clean        Clean build dirs before compiling" \
-		"--arch <arch>  Build for specified architecture (supported: armv7l, arm64, x86, x86_64)"
+		"--arch <arch>  Build for specified architecture (supported: arm64)"
 	exit 0
 }
 

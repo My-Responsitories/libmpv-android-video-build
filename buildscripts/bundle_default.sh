@@ -32,9 +32,6 @@ sudo chmod +x gradlew
 unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
 ln -sf "$(pwd)/app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so"   "../../../libmpv/src/main/jniLibs/arm64-v8a"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/armeabi-v7a/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/armeabi-v7a"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/x86/libmediakitandroidhelper.so"         "../../../libmpv/src/main/jniLibs/x86"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/x86_64/libmediakitandroidhelper.so"      "../../../libmpv/src/main/jniLibs/x86_64"
 
 cd ../..
 
@@ -77,9 +74,6 @@ rm -r lib/*/libflutter.so
 # done
 
 zip -q -r "default-arm64-v8a.jar"                lib/arm64-v8a
-zip -q -r "default-armeabi-v7a.jar"              lib/armeabi-v7a
-zip -q -r "default-x86.jar"                      lib/x86
-zip -q -r "default-x86_64.jar"                   lib/x86_64
 
 mkdir -p ../../../../../../../../../../output
 
