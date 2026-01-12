@@ -3,6 +3,9 @@ source ./include/depinfo.sh
 
 set -euo pipefail
 
+# Dependencies
+pip install meson
+
 GIT_CLONE="git clone --depth 1 --single-branch --no-tags"
 
 mkdir -p deps
