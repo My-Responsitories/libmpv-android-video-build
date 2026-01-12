@@ -1,6 +1,4 @@
 #!/bin/bash -e
-source ../../include/path.sh
-
 mkdir -p $build_dir
 pushd $build_dir
 
@@ -209,9 +207,9 @@ cpu=armv8-a
 	--enable-filter=overlay \
 	--enable-filter=equalizer \
 	--enable-filter=aresample \
- 	--enable-filter=dynaudnorm \
- 	--enable-filter=loudnorm \
- 	--enable-filter=alimiter \
+	--enable-filter=dynaudnorm \
+	--enable-filter=loudnorm \
+	--enable-filter=alimiter \
 	\
 	--enable-protocol=async \
 	--enable-protocol=cache \

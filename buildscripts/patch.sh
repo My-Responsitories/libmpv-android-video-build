@@ -1,22 +1,19 @@
 #!/bin/bash -e
 set -euo pipefail
 
-PATCHES=(patches/*)
-ROOT=$(pwd)
+PATCHES=($BUILDSCRIPTS_DIR/patches/*)
 
 for dep_path in "${PATCHES[@]}"; do
-    if [ -d "$dep_path" ]; then
-        patches=($dep_path/*)
-        dep=$(echo $dep_path |cut -d/ -f 2)
-        pushd deps/$dep
-        echo Patching $dep
-        git reset --hard
-        for patch in "${patches[@]}"; do
-            echo Applying $patch
-            git apply "$ROOT/$patch"
-        done
-        popd
-    fi
+    patches=($dep_path/*)
+    dep=$(basename $dep_path)
+    pushd deps/$dep
+    echo Patching $dep
+    git reset --hard
+    for patch in "${patches[@]}"; do
+        echo Applying $patch
+        git apply $patch
+    done
+    popd
 done
 
 exit 0

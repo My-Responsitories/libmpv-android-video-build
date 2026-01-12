@@ -1,6 +1,4 @@
 #!/bin/bash -e
-source ../../include/path.sh
-
 mkdir -p $build_dir
 pushd $build_dir
 

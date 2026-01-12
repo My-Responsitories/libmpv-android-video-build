@@ -1,6 +1,4 @@
 #!/bin/bash -e
-source ../../include/path.sh
-
 ./autogen.sh
 
 mkdir -p $build_dir

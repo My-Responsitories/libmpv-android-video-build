@@ -1,4 +1,7 @@
 #!/bin/bash -e
+export BUILDSCRIPTS_DIR=$(realpath $(dirname ${BASH_SOURCE[0]}))
+source $BUILDSCRIPTS_DIR/include/path.sh
+
 set -euo pipefail
 
 # Helper function to insert ABI filter in build.gradle
@@ -18,18 +21,22 @@ insert_abi_filter() {
 
 # --------------------------------------------------
 
+mkdir -p $BUILD_DIR
+pushd $BUILD_DIR
+
 rm -rf deps prefix
+mkdir deps prefix
 
-./download.sh || exit 1
-./patch.sh || exit 1
+$BUILDSCRIPTS_DIR/download.sh
+export PATH=$(realpath deps/flutter/bin):$PATH
+
+$BUILDSCRIPTS_DIR/patch.sh
+
+$BUILDSCRIPTS_DIR/build.sh
 
 # --------------------------------------------------
 
-./build.sh || exit 1
-
-# --------------------------------------------------
-
-pushd deps/media-kit-android-helper || exit 1
+pushd deps/media-kit-android-helper
 
 chmod +x gradlew
 # Build all ABIs - the external media-kit-android-helper project doesn't properly support
@@ -38,53 +45,57 @@ chmod +x gradlew
 
 unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
-mkdir -p "../../../libmpv/src/main/jniLibs/arm64-v8a"
-cp "app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so" "../../../libmpv/src/main/jniLibs/arm64-v8a/"
+mkdir -p libmpv/src/main/jniLibs/arm64-v8a
+cp app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so libmpv/src/main/jniLibs/arm64-v8a/
 
 popd
 
 # --------------------------------------------------
 
-pushd deps/media_kit/media_kit_native_event_loop || exit 1
+pushd deps/media_kit/media_kit_native_event_loop
 
 flutter create --org com.alexmercerind --template plugin_ffi --platforms=android .
 
-if ! grep -q android "pubspec.yaml"; then
-  printf "      android:\n        ffiPlugin: true\n" >> pubspec.yaml
+if ! grep -q android pubspec.yaml; then
+	printf "      android:\n        ffiPlugin: true\n" >> pubspec.yaml
 fi
 
 flutter pub get
 
 # Configure gradle to only build arm64-v8a
-insert_abi_filter "android/build.gradle" \
-	'/android \{/ {print; print "    defaultConfig {"; print "        ndk {"; print "            abiFilters \"arm64-v8a\""; print "        }"; print "    }"; next}1'
-
-insert_abi_filter "example/android/app/build.gradle" \
-	'/defaultConfig \{/ {print; print "        ndk {"; print "            abiFilters \"arm64-v8a\""; print "        }"; next}1'
+insert_abi_filter "android/build.gradle" '
+/android \{/ {
+    block = \
+"    defaultConfig {\n" \
+"        ndk {\n" \
+"            abiFilters \"arm64-v8a\"\n" \
+"        }\n" \
+"    }"
+    print
+    print block
+    next
+}
+1
+'
 
 cp -a ../../mpv/include/mpv/. src/include/
 
-pushd example || exit 1
+pushd example
 
 flutter clean
 flutter build apk --release --target-platform android-arm64
 
 unzip -q -o build/app/outputs/apk/release/app-release.apk -d build/app/outputs/apk/release
 
-pushd build/app/outputs/apk/release || exit 1
+pushd build/app/outputs/apk/release
 
 # --------------------------------------------------
 
-rm -r lib/*/libapp.so
-rm -r lib/*/libflutter.so
+rm -f lib/*/libapp.so
+rm -f lib/*/libflutter.so
 
-zip -q -r "default-arm64-v8a.jar"                lib/arm64-v8a
-
-mkdir -p ../../../../../../../../../../output
-
-cp *.jar ../../../../../../../../../../output
-
-md5sum *.jar
+mkdir -p $BUILD_DIR/output
+zip -q -r $BUILD_DIR/output/default-arm64-v8a.jar lib/arm64-v8a
 
 popd
 popd
@@ -93,3 +104,5 @@ popd
 # --------------------------------------------------
 
 # zip -q -r debug-symbols-default.zip prefix/*/lib
+
+popd

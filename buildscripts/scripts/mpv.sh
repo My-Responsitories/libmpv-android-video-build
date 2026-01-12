@@ -1,6 +1,4 @@
 #!/bin/bash -e
-source ../../include/path.sh
-
 unset CC CXX # meson wants these unset
 
 $_MESON \
@@ -9,13 +7,13 @@ $_MESON \
 	-Dgpl=false \
 	-Dlibmpv=true \
 	-Dbuild-date=false \
- 	-Dlua=disabled \
- 	-Dcplayer=false \
+	-Dlua=disabled \
+	-Dcplayer=false \
 	-Diconv=disabled \
 	-Dvulkan=disabled \
- 	-Dmanpage-build=disabled
+	-Dmanpage-build=disabled
 
 $_NINJA
 DESTDIR="$prefix_dir" $_NINJA install
 
-ln -sf "$prefix_dir"/lib/libmpv.so "$native_dir"
+ln -sf "$prefix_dir/lib/libmpv.so" "$native_dir"
