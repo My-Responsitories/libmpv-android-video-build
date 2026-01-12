@@ -32,6 +32,8 @@ export PATH=$(realpath deps/flutter/bin):$PATH
 
 $BUILDSCRIPTS_DIR/patch.sh
 
+$BUILDSCRIPTS_DIR/setup_wrapper.sh
+
 $BUILDSCRIPTS_DIR/build.sh
 
 # --------------------------------------------------
