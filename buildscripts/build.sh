@@ -17,7 +17,7 @@ loadarch() {
 	export build_dir="_build$ndk_suffix"
 	local prefix_name=arm64-v8a
 	export prefix_dir="$PREFIX_DIR/$prefix_name"
-	export native_dir="$BUILD_DIR/libmpv/src/main/jniLibs/$prefix_name"
+	export native_dir="$ROOT_DIR/libmpv/src/main/jniLibs/$prefix_name"
 
 	export CC=$cc_triple-clang
 	export CXX=$cc_triple-clang++

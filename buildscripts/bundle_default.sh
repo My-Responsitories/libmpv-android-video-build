@@ -47,8 +47,8 @@ chmod +x gradlew
 
 unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
-mkdir -p $BUILD_DIR/libmpv/src/main/jniLibs/arm64-v8a
-cp app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so $BUILD_DIR/libmpv/src/main/jniLibs/arm64-v8a/
+mkdir -p $ROOT_DIR/libmpv/src/main/jniLibs/arm64-v8a
+cp app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so $ROOT_DIR/libmpv/src/main/jniLibs/arm64-v8a/
 
 popd
 
@@ -80,7 +80,7 @@ insert_abi_filter "android/build.gradle" '
 1
 '
 
-cp -a ../../mpv/include/mpv/. src/include/
+cp -a $DEPS_DIR/mpv/include/mpv/. src/include/
 
 pushd example
 
