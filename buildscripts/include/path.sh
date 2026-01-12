@@ -1,20 +1,7 @@
 #!/bin/bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
-
-os=linux
-[[ "$OSTYPE" == "darwin"* ]] && os=mac
-export os
-
-if [ "$os" == "mac" ]; then
-	[ -z "$cores" ] && cores=$(sysctl -n hw.ncpu)
-	# various things rely on GNU behaviour
-	export INSTALL=`which ginstall`
-	export SED=gsed
-else
-	[ -z "$cores" ] && cores=$(grep -c ^processor /proc/cpuinfo)
-fi
-cores=${cores:-4}
+cores=$(nproc)
 
 # configure pkg-config paths if inside buildscripts
 if [ -n "$ndk_triple" ]; then
@@ -23,14 +10,5 @@ if [ -n "$ndk_triple" ]; then
 	unset PKG_CONFIG_PATH
 fi
 
-toolchain=$(echo "$DIR/sdk/android-sdk-linux/ndk/$v_ndk/toolchains/llvm/prebuilt/"*)
-export PATH="$toolchain/bin:$DIR/sdk/android-sdk-linux/ndk/$v_ndk:$DIR/sdk/bin:$PATH"
-export ANDROID_HOME="$DIR/sdk/android-sdk-$os"
+export PATH="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
 unset ANDROID_SDK_ROOT ANDROID_NDK_ROOT
-
-# Common optimization flags for all builds
-export OPT_FLAGS="-O3 -DNDEBUG -flto"
-export OPT_CFLAGS="-O3 -fPIC -DNDEBUG -flto"
-export OPT_CXXFLAGS="-O3 -fPIC -DNDEBUG -flto"
-# Meson-compatible array format for crossfile
-export OPT_MESON_ARGS="['-O3', '-fPIC', '-DNDEBUG', '-flto']"

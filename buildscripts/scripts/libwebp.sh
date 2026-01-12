@@ -1,21 +1,8 @@
 #!/bin/bash -e
+source ../../include/path.sh
 
-. ../../include/depinfo.sh
-. ../../include/path.sh
-
-build=_build$ndk_suffix
-
-if [ "$1" == "build" ]; then
-	true
-elif [ "$1" == "clean" ]; then
-	rm -rf $build
-	exit 0
-else
-	exit 255
-fi
-
-mkdir -p $build
-cd $build
+mkdir -p $build_dir
+pushd $build_dir
 
 cmake .. \
 	-DENABLE_SHARED=ON \
@@ -26,5 +13,7 @@ cmake .. \
 	-DCMAKE_PLATFORM_NO_VERSIONED_SONAME=ON \
 	-DCMAKE_VERBOSE_MAKEFILE=ON
 
-make -j$cores VERBOSE=1
-make DESTDIR="$prefix_dir" install
+$_MAKE
+DESTDIR="$prefix_dir" $_MAKE install
+
+popd

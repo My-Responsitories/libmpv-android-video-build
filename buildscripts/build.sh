@@ -1,20 +1,20 @@
 #!/bin/bash -e
-
 cd "$( dirname "${BASH_SOURCE[0]}" )"
-. ./include/depinfo.sh
-. ./include/path.sh
+source include/depinfo.sh
+source include/path.sh
 
 cleanbuild=0
 nodeps=0
 target=mpv
 archs=(arm64)
 
-getdeps () {
+# Get dependencies for a target using indirect variable expansion
+getdeps() {
 	varname="dep_${1//-/_}[*]"
 	echo ${!varname}
 }
 
-loadarch () {
+loadarch() {
 	unset CC CXX CPATH LIBRARY_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH
 
 	local apilvl=24
@@ -22,20 +22,22 @@ loadarch () {
 	export ndk_suffix=-arm64
 	export ndk_triple=aarch64-linux-android
 	cc_triple=$ndk_triple$apilvl
+	export build_dir="_build$ndk_suffix"
 	prefix_name=arm64-v8a
 	export prefix_dir="$PWD/prefix/$prefix_name"
 	export native_dir="$PWD/../libmpv/src/main/jniLibs/$prefix_name"
 	export CC=$cc_triple-clang
-	export AS="$CC"
+	export AS=$CC
 	export CXX=$cc_triple-clang++
-	export CFLAGS="$OPT_CFLAGS"
-	export CXXFLAGS="$OPT_CXXFLAGS"
-	export LDFLAGS="-fuse-ld=lld -flto -Wl,-O3,--icf=safe -Wl,-z,max-page-size=16384"
 	export AR=llvm-ar
+	export NM=llvm-nm
 	export RANLIB=llvm-ranlib
+	export _MESON="meson setup $build_dir --cross-file $prefix_dir/crossfile.txt"
+	export _MAKE="make -j$cores V=1 VERBOSE=1"
+	export _NINJA="ninja -v -j$cores -C $build_dir"
 }
 
-setup_prefix () {
+setup_prefix() {
 	if [ ! -d "$prefix_dir" ]; then
 		mkdir -p "$prefix_dir"
 		# enforce flat structure (/usr/local -> /)
@@ -58,8 +60,6 @@ buildtype = 'release'
 default_library = 'static'
 wrap_mode = 'nodownload'
 b_ndebug = 'true'
-c_args = $OPT_MESON_ARGS
-cpp_args = $OPT_MESON_ARGS
 [binaries]
 c = '$CC'
 cpp = '$CXX'
@@ -75,7 +75,7 @@ endian = 'little'
 CROSSFILE
 }
 
-build () {
+build() {
 	if [ ! -d deps/$1 ]; then
 		printf >&2 '\e[1;31m%s\e[m\n' "Target $1 not found"
 		exit 1
@@ -92,13 +92,12 @@ build () {
 	printf >&2 '\e[1;34m%s\e[m\n' "Building $1..."
 	pushd deps/$1
 	BUILDSCRIPT=../../scripts/$1.sh
- 	sudo chmod +x $BUILDSCRIPT
 	[ $cleanbuild -eq 1 ] && $BUILDSCRIPT clean
-    $BUILDSCRIPT build || exit 1
-    popd
+	$BUILDSCRIPT build || exit 1
+	popd
 }
 
-usage () {
+usage() {
 	printf '%s\n' \
 		"Usage: build.sh [options] [target]" \
 		"Builds the specified target (default: $target)" \
