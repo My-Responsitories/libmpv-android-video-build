@@ -1,18 +1,15 @@
 #!/bin/bash -e
 source $BUILDSCRIPTS_DIR/include/depinfo.sh
 
-set -eo pipefail
+set -euo pipefail
 
 # Dependencies
 pip install meson
 
-GIT_CLONE="git clone --depth 1 --single-branch --no-tags"
+GIT_CLONE="git clone -c advice.detachedHead=false --depth 1 --single-branch --no-tags"
 
 mkdir -p $DEPS_DIR
 pushd $DEPS_DIR
-
-# flutter
-git clone --depth 1 --single-branch -b stable https://github.com/flutter/flutter &
 
 # mpv
 $GIT_CLONE -b v$v_mpv https://github.com/mpv-player/mpv.git mpv &

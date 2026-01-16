@@ -1,6 +1,13 @@
 #!/bin/bash -e
 ## Dependency versions
 
+v_platform=android-36.1
+v_sdk=13114758_latest
+v_ndk=29.0.14206865
+v_sdk_build_tools=36.1.0
+v_cmake=4.1.2
+
+
 v_mpv=0.41.0
 v_ffmpeg=8.0.1
 v_mbedtls=3.6.5

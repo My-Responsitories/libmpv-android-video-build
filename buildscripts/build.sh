@@ -1,5 +1,9 @@
 #!/bin/bash -e
+set -euo pipefail
+
 source $BUILDSCRIPTS_DIR/include/depinfo.sh
+
+archs=(armv7l arm64 x86_64)
 
 # Get dependencies for a target using indirect variable expansion
 getdeps() {
@@ -11,11 +15,29 @@ loadarch() {
 	unset CC CXX CPATH LIBRARY_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH
 
 	local api_level=24
-	export ndk_suffix=-arm64
-	export ndk_triple=aarch64-linux-android
-	local cc_triple=$ndk_triple$api_level
+
+	local cc_triple prefix_name
+	if [ "$1" == "armv7l" ]; then
+		export ndk_suffix=
+		export ndk_triple=arm-linux-androideabi
+		cc_triple=armv7a-linux-androideabi$api_level
+		prefix_name=armeabi-v7a
+		elif [ "$1" == "arm64" ]; then
+		export ndk_suffix=-arm64
+		export ndk_triple=aarch64-linux-android
+		cc_triple=$ndk_triple$api_level
+		prefix_name=arm64-v8a
+		elif [ "$1" == "x86_64" ]; then
+		export ndk_suffix=-x64
+		export ndk_triple=x86_64-linux-android
+		cc_triple=$ndk_triple$api_level
+		prefix_name=x86_64
+	else
+		echo "Invalid architecture"
+		exit 1
+	fi
+
 	export build_dir="_build$ndk_suffix"
-	local prefix_name=arm64-v8a
 	export prefix_dir="$PREFIX_DIR/$prefix_name"
 	export native_dir="$ROOT_DIR/libmpv/src/main/jniLibs/$prefix_name"
 
@@ -92,8 +114,10 @@ build() {
 	popd
 }
 
-loadarch
-setup_prefix
-build mpv
+for arch in ${archs[@]}; do
+	loadarch $arch
+	setup_prefix
+	build mpv
+done
 
 exit 0
