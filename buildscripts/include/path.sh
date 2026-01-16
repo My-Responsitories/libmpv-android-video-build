@@ -5,4 +5,4 @@ export DEPS_DIR=$BUILD_DIR/deps
 export PREFIX_DIR=$BUILD_DIR/prefix
 
 export PATH="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
-unset ANDROID_SDK_ROOT ANDROID_NDK_ROOT
+export ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME

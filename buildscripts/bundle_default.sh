@@ -6,17 +6,17 @@ set -euo pipefail
 
 # Helper function to insert ABI filter in build.gradle
 insert_abi_filter() {
-	local gradle_file="$1"
-	local pattern="$2"
-	
-	if [ -f "$gradle_file" ] && ! grep -q "abiFilters" "$gradle_file"; then
-		if awk "$pattern" "$gradle_file" > "$gradle_file.tmp"; then
-			mv "$gradle_file.tmp" "$gradle_file"
-		else
-			rm -f "$gradle_file.tmp"
-			return 1
-		fi
-	fi
+    local gradle_file="$1"
+    local pattern="$2"
+
+    if [ -f "$gradle_file" ] && ! grep -q "abiFilters" "$gradle_file"; then
+        if awk "$pattern" "$gradle_file" > "$gradle_file.tmp"; then
+            mv "$gradle_file.tmp" "$gradle_file"
+        else
+            rm -f "$gradle_file.tmp"
+            return 1
+        fi
+    fi
 }
 
 # --------------------------------------------------
@@ -28,7 +28,6 @@ rm -rf deps prefix
 mkdir deps prefix
 
 $BUILDSCRIPTS_DIR/download.sh
-export PATH=$(realpath deps/flutter/bin):$PATH
 
 $BUILDSCRIPTS_DIR/patch.sh
 
@@ -47,8 +46,9 @@ chmod +x gradlew
 
 unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
 
-mkdir -p $ROOT_DIR/libmpv/src/main/jniLibs/arm64-v8a
-cp app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so $ROOT_DIR/libmpv/src/main/jniLibs/arm64-v8a/
+ln -sf "$(pwd)/app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so"    "$ROOT_DIR/libmpv/src/main/jniLibs/arm64-v8a"
+ln -sf "$(pwd)/app/build/outputs/apk/release/lib/armeabi-v7a/libmediakitandroidhelper.so" "$ROOT_DIR/libmpv/src/main/jniLibs/armeabi-v7a"
+ln -sf "$(pwd)/app/build/outputs/apk/release/lib/x86_64/libmediakitandroidhelper.so"      "$ROOT_DIR/libmpv/src/main/jniLibs/x86_64"
 
 popd
 
@@ -59,7 +59,7 @@ pushd deps/media_kit/media_kit_native_event_loop
 flutter create --org com.alexmercerind --template plugin_ffi --platforms=android .
 
 if ! grep -q android pubspec.yaml; then
-	printf "      android:\n        ffiPlugin: true\n" >> pubspec.yaml
+    printf "      android:\n        ffiPlugin: true\n" >> pubspec.yaml
 fi
 
 flutter pub get
@@ -70,7 +70,7 @@ insert_abi_filter "android/build.gradle" '
     block = \
 "    defaultConfig {\n" \
 "        ndk {\n" \
-"            abiFilters \"arm64-v8a\"\n" \
+"            abiFilters \"arm64-v8a\",\"armeabi-v7a\",\"x86_64\"\n" \
 "        }\n" \
 "    }"
     print
@@ -85,7 +85,7 @@ cp -a $DEPS_DIR/mpv/include/mpv/. src/include/
 pushd example
 
 flutter clean
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release
 
 unzip -q -o build/app/outputs/apk/release/app-release.apk -d build/app/outputs/apk/release
 
@@ -97,7 +97,9 @@ rm -f lib/*/libapp.so
 rm -f lib/*/libflutter.so
 
 mkdir -p $BUILD_DIR/output
-zip -q -r $BUILD_DIR/output/default-arm64-v8a.jar lib/arm64-v8a
+zip -q -r "$BUILD_DIR/output/default-arm64-v8a.jar"   lib/arm64-v8a
+zip -q -r "$BUILD_DIR/output/default-armeabi-v7a.jar" lib/armeabi-v7a
+zip -q -r "$BUILD_DIR/output/default-x86_64.jar"      lib/x86_64
 
 popd
 popd

@@ -19,7 +19,9 @@ class CompilerWrapper:
         append_flags = ["-w", "-g0"]
         append_flags += ["-O3", "-ffast-math", "-fno-stack-protector", "-fno-plt", "-flto=full"]
         append_flags += ["-fPIC"]
+        append_flags += ["-ffunction-sections", "-fdata-sections"]
         append_flags += ["-s","-fuse-ld=lld", "-lm"]
+        append_flags += ["-Wl,--gc-sections", "-Wl,--icf=all"]
         env_prepend = os.getenv("NDK_WRAPPER_PREPEND")
         if env_prepend:
             prepend_flags += env_prepend.split()

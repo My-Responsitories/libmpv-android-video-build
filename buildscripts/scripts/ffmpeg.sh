@@ -2,7 +2,12 @@
 mkdir -p $build_dir
 pushd $build_dir
 
-cpu=armv8-a
+cpu=armv7-a
+[[ "$ndk_triple" == "aarch64"* ]] && cpu=armv8-a
+[[ "$ndk_triple" == "x86_64"* ]] && cpu=generic
+
+cpuflags=
+[[ "$ndk_triple" == "arm"* ]] && cpuflags="$cpuflags -mfpu=neon -mcpu=cortex-a8"
 
 ../configure \
 	--target-os=android \
@@ -15,7 +20,7 @@ cpu=armv8-a
 	--arch=${ndk_triple%%-*} \
 	--cpu=$cpu \
 	--pkg-config=pkg-config \
-	--extra-cflags="-I$prefix_dir/include" \
+	--extra-cflags="-I$prefix_dir/include $cpuflags" \
 	--extra-ldflags="-L$prefix_dir/lib" \
 	\
 	--disable-gpl \
@@ -25,6 +30,7 @@ cpu=armv8-a
 	--disable-shared \
 	--disable-vulkan \
 	--disable-iconv \
+	--disable-debug \
 	--pkg-config-flags=--static \
 	\
 	--disable-muxers \

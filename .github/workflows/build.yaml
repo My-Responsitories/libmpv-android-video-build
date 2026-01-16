@@ -2,8 +2,6 @@ name: Build libmpv-android
 
 on:
   push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
     inputs:
@@ -19,9 +17,6 @@ on:
 
 permissions:
   contents: write
-
-env:
-  NDK_VER: 27.1.12297006
 
 jobs:
   build:
@@ -53,25 +48,14 @@ jobs:
         run: |
           sudo chmod +x bundle_default.sh
           ./bundle_default.sh
-      # - name: Bundle (full)
-      #   working-directory: ./buildscripts
-      #   run: |
-      #     sudo chmod +x bundle_full.sh
-      #     ./bundle_full.sh
-      # - name: Bundle (encoders-gpl)
-      #   working-directory: ./buildscripts
-      #   run: |
-      #     sudo chmod +x bundle_encoders-gpl.sh
-      #     ./bundle_encoders-gpl.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: artifact
-          path: ./output/*.jar
-      - uses: softprops/action-gh-release@v1
+          path: ./build/output/*.jar
+      - uses: softprops/action-gh-release@v2
         if: ${{ github.event.inputs.release == 'true' }}
         with:
           draft: true
           prerelease: false
           tag_name: "vnext"
-          files: |
-            output/*.jar
+          files: build/output/*.jar
