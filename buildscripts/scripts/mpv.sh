@@ -11,7 +11,8 @@ $_MESON \
 	-Dcplayer=false \
 	-Diconv=disabled \
 	-Dvulkan=disabled \
-	-Dmanpage-build=disabled
+	-Dmanpage-build=disabled \
+	-Dcplugins=disabled
 
 $_NINJA
 DESTDIR="$prefix_dir" $_NINJA install
