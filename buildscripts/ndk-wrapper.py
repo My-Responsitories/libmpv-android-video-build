@@ -25,7 +25,7 @@ class CompilerWrapper:
             append_flags += ["-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections"]
             append_flags += ["-fPIC"]
             append_flags += ["-g0", "-s"]
-            append_flags += ["-fuse-ld=lld", "-Wl,-O2,--icf=all,--as-needed,--sort-common,--pack-dyn-relocs=relr,-mllvm,-enable-ext-tsp-block-placement=1"]
+            append_flags += ["-fuse-ld=lld", "-Wl,-O2,--icf=all,--as-needed,--sort-common,-mllvm,-enable-ext-tsp-block-placement=1"]
         env_prepend = os.getenv("NDK_WRAPPER_PREPEND")
         if env_prepend:
             prepend_flags += env_prepend.split()
