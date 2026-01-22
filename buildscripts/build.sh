@@ -22,16 +22,19 @@ loadarch() {
 		export ndk_triple=arm-linux-androideabi
 		cc_triple=armv7a-linux-androideabi$api_level
 		prefix_name=armeabi-v7a
+		export NDK_WRAPPER_APPEND=
 		elif [ "$1" == "arm64" ]; then
 		export ndk_suffix=-arm64
 		export ndk_triple=aarch64-linux-android
 		cc_triple=$ndk_triple$api_level
 		prefix_name=arm64-v8a
+		export NDK_WRAPPER_APPEND="-mcpu=cortex-a75+crypto -mtune=cortex-a55"
 		elif [ "$1" == "x86_64" ]; then
 		export ndk_suffix=-x64
 		export ndk_triple=x86_64-linux-android
 		cc_triple=$ndk_triple$api_level
 		prefix_name=x86_64
+		export NDK_WRAPPER_APPEND=
 	else
 		echo "Invalid architecture"
 		exit 1
