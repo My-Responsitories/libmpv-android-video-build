@@ -23,52 +23,144 @@ cpu=armv8-a
 	--extra-cflags="-I$prefix_dir/include" \
 	--extra-ldflags="-L$prefix_dir/lib" \
 	\
+	--disable-gpl \
+	--disable-nonfree \
 	--enable-version3 \
+	--enable-static \
+	--disable-shared \
+	--disable-vulkan \
+	--disable-iconv \
 	--disable-debug \
 	--pkg-config-flags=--static \
 	\
-	--disable-everything \
+	--disable-muxers \
+	--disable-decoders \
+	--disable-encoders \
+	--disable-demuxers \
+	--disable-parsers \
+	--disable-protocols \
+	--disable-devices \
+	--disable-filters \
 	--disable-doc \
 	--disable-avdevice \
 	--disable-programs \
+	--disable-gray \
 	--disable-swscale-alpha \
 	\
-	--disable-zlib \
-	\
 	--enable-jni \
-	--enable-pic \
-	--enable-optimizations \
-	--enable-hardcoded-tables \
-	\
+	--enable-bsfs \
 	--enable-mediacodec \
-	--enable-decoder=h264_mediacodec \
-	--enable-decoder=hevc_mediacodec \
-	--enable-decoder=av1_mediacodec \
-	--enable-decoder=aac_mediacodec \
-	--enable-decoder=flac \
+	\
+	--disable-dxva2 \
+	--disable-vaapi \
+	--disable-vdpau \
+	--disable-bzlib \
+	--disable-linux-perf \
+	--disable-videotoolbox \
+	--disable-audiotoolbox \
+	\
+	--enable-small \
+	--enable-hwaccels \
+	--enable-optimizations \
+	--enable-runtime-cpudetect \
+	\
+	--enable-mbedtls \
 	\
 	$DAV1D_CONFIG \
 	\
-	--enable-demuxer=flv \
-	--enable-demuxer=mov \
-	\
-	--enable-decoder=webvtt \
-	--enable-demuxer=webvtt \
+	--enable-avutil \
+	--enable-avcodec \
+	--enable-avfilter \
+	--enable-avformat \
+	--enable-swscale \
+	--enable-swresample \
 	\
 	--enable-libwebp \
-	--enable-muxer=webp \
-	--enable-encoder=libwebp \
-	--enable-encoder=libwebp_anim \
 	\
+	--enable-decoder=flv \
+	--enable-decoder=h264* \
+	--enable-decoder=mpeg1video \
+	--enable-decoder=mpeg4* \
+	--enable-decoder=vp8* \
+	--enable-decoder=vp9* \
+	--enable-decoder=hevc* \
+	--enable-decoder=av1* \
+	\
+	--enable-decoder=aac* \
+	--enable-decoder=ac3 \
+	--enable-decoder=eac3 \
+	--enable-decoder=flac \
+	--enable-decoder=mp3* \
+	--enable-decoder=opus \
+	--enable-decoder=wavpack \
+	--enable-decoder=pcm* \
+	\
+	--enable-decoder=srt \
+	--enable-decoder=subrip \
+	--enable-decoder=webvtt \
+	--enable-decoder=movtext \
+	\
+	--enable-demuxer=concat \
+	--enable-demuxer=data \
+	--enable-demuxer=flv \
+	--enable-demuxer=hls \
+	--enable-demuxer=live_flv \
+	--enable-demuxer=loas \
+	--enable-demuxer=m4v \
+	--enable-demuxer=mov \
+	--enable-demuxer=mpegps \
+	--enable-demuxer=mpegts \
+	--enable-demuxer=mpegvideo \
+	--enable-demuxer=hevc \
+	--enable-demuxer=av1 \
+	--enable-demuxer=matroska \
+	--enable-demuxer=webm_dash_manifest \
+	--enable-muxer=webp \
+	\
+	--enable-demuxer=aac \
+	--enable-demuxer=ac3 \
+	--enable-demuxer=au \
+	--enable-demuxer=flac \
+	--enable-demuxer=mp3 \
+	--enable-demuxer=wav \
+	\
+	--enable-demuxer=srt \
+	--enable-demuxer=webvtt \
+	\
+	--enable-parser=h264 \
+	--enable-parser=hevc \
+	--enable-parser=mpeg4video \
+	--enable-parser=mpegvideo \
+	\
+	--enable-parser=aac* \
+	--enable-parser=ac3 \
+	--enable-parser=flac \
+	--enable-parser=mpegaudio \
+	\
+	--enable-filter=overlay \
+	--enable-filter=equalizer \
 	--enable-filter=aresample \
 	--enable-filter=dynaudnorm \
 	--enable-filter=loudnorm \
+	--enable-filter=alimiter \
 	\
-	--enable-mbedtls \
-	--enable-network \
+	--enable-protocol=async \
+	--enable-protocol=cache \
+	--enable-protocol=crypto \
 	--enable-protocol=file \
-	--enable-protocol=https \
+	--enable-protocol=hls \
+	--enable-protocol=http \
 	--enable-protocol=httpproxy \
+	--enable-protocol=https \
+	--enable-protocol=pipe \
+	--enable-protocol=subfile \
+	--enable-protocol=tcp \
+	--enable-protocol=tls \
+	\
+	--enable-encoder=libwebp \
+	--enable-encoder=libwebp_anim \
+	\
+	--enable-network \
 	\
 	$CUSTOM_FFMPEG_OPTIONS
 
