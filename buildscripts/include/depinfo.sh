@@ -9,13 +9,13 @@ v_sdk_build_tools=37.0.0
 v_cmake=4.1.2
 
 v_libass=0.17.4
-v_harfbuzz=12.3.2
+v_harfbuzz=13.2.1
 v_fribidi=1.0.16
-v_freetype=2.14.1
+v_freetype=2.14.3
 v_mbedtls=3.6.5
-v_libplacebo=7.360.0
+v_libplacebo=7.360.1
 v_dav1d=1.5.3
-v_ffmpeg=8.0.1
+v_ffmpeg=8.1
 v_mpv=0.41.0
 v_libvpx=1.15
 v_libwebp=1.6.0
