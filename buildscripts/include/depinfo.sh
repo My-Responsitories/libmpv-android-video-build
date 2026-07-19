@@ -9,7 +9,7 @@ v_sdk_build_tools=37.0.0
 v_cmake=4.1.2
 
 v_libass=0.17.4
-v_harfbuzz=14.1.0
+v_harfbuzz=14.2.1
 v_fribidi=1.0.16
 v_freetype=2-14-3
 v_mbedtls=3.6.6
