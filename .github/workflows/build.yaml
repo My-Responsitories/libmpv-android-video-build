@@ -1,9 +1,6 @@
 name: Build libmpv-android
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
     inputs:
@@ -36,7 +33,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          cache: 'gradle'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Setup Flutter SDK
@@ -68,11 +64,16 @@ jobs:
         with:
           name: artifact
           path: ./output/*.jar
+
+      - name: Set Tag Name
+        if: ${{ github.event.inputs.release == 'true' }}
+        run: echo "TAG_NAME=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
       - uses: softprops/action-gh-release@v3
         if: ${{ github.event.inputs.release == 'true' }}
         with:
           draft: true
           prerelease: false
-          tag_name: "vnext"
+          tag_name: ${{ env.TAG_NAME }}
           files: |
             output/*.jar
