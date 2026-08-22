@@ -72,8 +72,6 @@ jobs:
       - uses: softprops/action-gh-release@v3
         if: ${{ github.event.inputs.release == 'true' }}
         with:
-          draft: true
-          prerelease: false
           tag_name: ${{ env.TAG_NAME }}
           files: |
             output/*.jar
