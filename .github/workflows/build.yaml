@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Java JDK
         uses: actions/setup-java@v5
         with:
@@ -47,14 +47,17 @@ jobs:
         run: |
           sudo chmod +x build.sh
           ./build.sh
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: artifact
           path: ./build/output/*.jar
-      - uses: softprops/action-gh-release@v2
+
+      - name: Set Tag Name
+        if: ${{ github.event.inputs.release == 'true' }}
+        run: echo "TAG_NAME=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - uses: softprops/action-gh-release@v3
         if: ${{ github.event.inputs.release == 'true' }}
         with:
-          draft: true
-          prerelease: false
-          tag_name: "vnext"
+          tag_name: ${{ env.TAG_NAME }}
           files: build/output/*.jar
