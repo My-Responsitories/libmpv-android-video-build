@@ -1,11 +1,9 @@
 #!/bin/bash -e
+unset CC CXX # meson wants these unset
 
-$_CMAKE \
-	-DFT_DISABLE_ZLIB=ON \
-	-DFT_DISABLE_BZIP2=ON \
-	-DFT_DISABLE_PNG=ON \
-	-DFT_DISABLE_HARFBUZZ=ON \
-	-DFT_DISABLE_BROTLI=ON
+NDK_WRAPPER_DISABLED=1 $_MESON \
+	-Dauto_features=disabled \
+	-Dmmap=auto
 
-NDK_WRAPPER_APPEND="$NDK_WRAPPER_APPEND -Oz" $_NINJA
+$_NINJA
 DESTDIR="$prefix_dir" $_NINJA install

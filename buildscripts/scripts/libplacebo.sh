@@ -8,6 +8,7 @@ fi
 
 $_MESON \
 	-Ddemos=false \
+	-Dauto_features=disabled \
 	$VULKAN_CONFIG
 
 $_NINJA

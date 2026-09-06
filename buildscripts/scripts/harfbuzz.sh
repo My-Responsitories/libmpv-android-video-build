@@ -2,6 +2,10 @@
 unset CC CXX # meson wants these unset
 
 $_MESON \
+	-Dauto_features=disabled \
+	-Draster=disabled \
+	-Dvector=disabled \
+	-Dsubset=disabled \
 	-Dtests=disabled \
 	-Ddocs=disabled \
 	-Dutilities=disabled
