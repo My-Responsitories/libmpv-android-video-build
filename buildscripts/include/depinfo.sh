@@ -15,9 +15,8 @@ v_freetype=2-14-3
 v_mbedtls=3.6.5
 v_libplacebo=7.360.1
 v_dav1d=1.5.4
-v_ffmpeg=9.0.1
+v_ffmpeg=9.0.2
 v_mpv=0.41.0
-v_libvpx=1.16
 v_libwebp=1.6.0
 
 
@@ -26,11 +25,7 @@ v_libwebp=1.6.0
 
 dep_mbedtls=()
 dep_dav1d=()
-if [ -n "$ENCODERS_GPL" ]; then
-	dep_ffmpeg=(mbedtls dav1d libvpx libx264 libwebp)
-else
-	dep_ffmpeg=(mbedtls dav1d libwebp)
-fi
+dep_ffmpeg=(mbedtls dav1d libwebp)
 dep_freetype2=()
 dep_fribidi=()
 dep_harfbuzz=()
@@ -38,8 +33,4 @@ dep_libass=(freetype fribidi harfbuzz)
 dep_lua=()
 dep_shaderc=()
 dep_libplacebo=()
-if [ -n "$ENCODERS_GPL" ]; then
-	dep_mpv=(ffmpeg libass libplacebo fftools_ffi)
-else
-	dep_mpv=(ffmpeg libass libplacebo)
-fi
+dep_mpv=(ffmpeg libass libplacebo)

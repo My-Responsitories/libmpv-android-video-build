@@ -16,12 +16,6 @@ git config --global advice.detachedHead false
 # dav1d
 [ ! -d dav1d ] && git clone --depth 1 --branch $v_dav1d https://code.videolan.org/videolan/dav1d.git dav1d
 
-# libvpx
-[ ! -d libvpx ] && git clone --depth 1 --branch meson-$v_libvpx https://gitlab.freedesktop.org/gstreamer/meson-ports/libvpx.git
-
-# libx264
-[ ! -d libx264 ] && git clone --depth 1 https://code.videolan.org/videolan/x264.git --branch master libx264
-
 # ffmpeg
 [ ! -d ffmpeg ] && git clone --depth 1 --branch n$v_ffmpeg https://github.com/FFmpeg/FFmpeg.git ffmpeg
 
@@ -53,13 +47,7 @@ HEREDOC
 # mpv
 [ ! -d mpv ]  && git clone --depth 1 --branch v$v_mpv https://github.com/mpv-player/mpv.git mpv
 
-# fftools_ffi
-[ ! -d fftools_ffi ] && git clone --depth 1 --branch main https://github.com/moffatman/fftools-ffi.git fftools_ffi
-
-# media-kit-android-helper
-[ ! -d media-kit-android-helper ] && git clone --depth 1 --branch main https://github.com/media-kit/media-kit-android-helper.git media-kit-android-helper
-
 # media_kit
-[ ! -d media_kit ] && git clone --depth 1 --single-branch --branch native https://github.com/My-Responsitories/media-kit.git media_kit
+[ ! -d media_kit ] && git clone --depth 1 --single-branch --branch upstream https://github.com/My-Responsitories/media-kit.git media_kit
 
 cd ..
