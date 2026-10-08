@@ -1,8 +1,9 @@
 #!/bin/bash -e
+: "${TARGET_PREFIX_DIR:?TARGET_PREFIX_DIR is not set}"
 
 cp include/mbedtls/mbedtls_config.h{,.bak}
 
-cat >>include/mbedtls/mbedtls_config.h <<"END"
+cat >>include/mbedtls/mbedtls_config.h <<END
 #if defined(__aarch64__) || defined(__arm64__)
 #define MBEDTLS_SHA256_USE_ARMV8_A_CRYPTO_ONLY
 #define MBEDTLS_SHA512_USE_A64_CRYPTO_IF_PRESENT
@@ -49,11 +50,11 @@ cat >>include/mbedtls/mbedtls_config.h <<"END"
 // #undef MBEDTLS_X509_CSR_WRITE_C
 END
 
-$_CMAKE \
+NDK_WRAPPER_DISABLED=1 $_CMAKE \
 	-DENABLE_PROGRAMS=OFF \
 	-DENABLE_TESTING=OFF
 
 $_NINJA
-DESTDIR="$prefix_dir" $_NINJA install
+$_NINJA install
 
 mv -f include/mbedtls/mbedtls_config.h{.bak,}

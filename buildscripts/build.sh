@@ -1,83 +1,90 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 set -euo pipefail
 
-source $BUILDSCRIPTS_DIR/include/depinfo.sh
+export BUILDSCRIPTS_DIR="${BUILDSCRIPTS_DIR:-$(realpath "$(dirname "${BASH_SOURCE[0]}")")}"
+source "$BUILDSCRIPTS_DIR/include/path.sh"
+source "$BUILDSCRIPTS_DIR/include/common.sh"
+source "$BUILDSCRIPTS_DIR/include/depinfo.sh"
+
+declare -A BUILT_TARGETS=()
+declare -A ACTIVE_TARGETS=()
 
 archs=(armv7l arm64 x86_64)
 
-# Get dependencies for a target using indirect variable expansion
-getdeps() {
-	varname="dep_${1//-/_}[*]"
-	echo ${!varname}
+prepare_workspace() {
+	rm -rf "$PREFIX_DIR" "$BUILD_DIR/output"
+	ensure_dir "$DEPS_DIR" "$PREFIX_DIR"
 }
 
-loadarch() {
+prepare_dependencies() {
+	"$BUILDSCRIPTS_DIR/download.sh"
+	"$BUILDSCRIPTS_DIR/patch.sh"
+	"$BUILDSCRIPTS_DIR/setup_wrapper.sh"
+}
+
+load_arch() {
 	unset CC CXX CPATH LIBRARY_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH
 
-	local api_level=24
+	local api_level="${ANDROID_API_LEVEL:-24}"
 
-	local cc_triple prefix_name
+	local cc_triple target_abi
 	if [ "$1" == "armv7l" ]; then
 		export ndk_suffix=
 		export ndk_triple=arm-linux-androideabi
 		cc_triple=armv7a-linux-androideabi$api_level
-		prefix_name=armeabi-v7a
+		target_abi=armeabi-v7a
 		export NDK_WRAPPER_APPEND=
 		elif [ "$1" == "arm64" ]; then
 		export ndk_suffix=-arm64
 		export ndk_triple=aarch64-linux-android
 		cc_triple=$ndk_triple$api_level
-		prefix_name=arm64-v8a
+		target_abi=arm64-v8a
 		export NDK_WRAPPER_APPEND="-mcpu=cortex-a75+crypto -mtune=cortex-a55"
 		elif [ "$1" == "x86_64" ]; then
 		export ndk_suffix=-x64
 		export ndk_triple=x86_64-linux-android
 		cc_triple=$ndk_triple$api_level
-		prefix_name=x86_64
+		target_abi=x86_64
 		export NDK_WRAPPER_APPEND=
 	else
 		echo "Invalid architecture"
 		exit 1
 	fi
 
-	export build_dir="_build$ndk_suffix"
-	export prefix_dir="$PREFIX_DIR/$prefix_name"
-	export native_dir="$ROOT_DIR/libmpv/src/main/jniLibs/$prefix_name"
+	export build_dir="_build${ndk_suffix}"
+	export TARGET_PREFIX_DIR="${PREFIX_DIR}/${target_abi}"
+	export TARGET_ABI="$target_abi"
+	export TARGET_LIB_DIR="$BUILD_DIR/output/lib/$TARGET_ABI"
 
-	export CC=$cc_triple-clang
-	export CXX=$cc_triple-clang++
-	export AS=$CC
-	export AR=llvm-ar
-	export NM=llvm-nm
-	export RANLIB=llvm-ranlib
+	export CC="${cc_triple}-clang"
+	export CXX="${cc_triple}-clang++"
+	export AS="$CC"
+	export AR="llvm-ar"
+	export NM="llvm-nm"
+	export RANLIB="llvm-ranlib"
 
-	export _CMAKE="cmake -B $build_dir -S . -G Ninja -DCMAKE_PREFIX_PATH=$prefix_dir -DCMAKE_BUILD_TYPE=Release"
-	export _MESON="meson setup $build_dir --cross-file $prefix_dir/crossfile.txt"
+	export _CMAKE="cmake -B $build_dir -S . -G Ninja -DCMAKE_INSTALL_PREFIX=$TARGET_PREFIX_DIR -DCMAKE_BUILD_TYPE=Release"
+	export _MESON="meson setup $build_dir --cross-file $TARGET_PREFIX_DIR/crossfile.txt"
 	export _MAKE="make -j$(nproc)"
 	export _NINJA="ninja -j$(nproc) -C $build_dir"
 
-	export PKG_CONFIG_SYSROOT_DIR="$prefix_dir"
+	export PKG_CONFIG_SYSROOT_DIR="$TARGET_PREFIX_DIR"
 	export PKG_CONFIG_LIBDIR="$PKG_CONFIG_SYSROOT_DIR/lib/pkgconfig"
 	unset PKG_CONFIG_PATH
 }
 
 setup_prefix() {
-	if [ ! -d "$prefix_dir" ]; then
-		mkdir -p "$prefix_dir"
-		# enforce flat structure (/usr/local -> /)
-		ln -s . "$prefix_dir/usr"
-		ln -s . "$prefix_dir/local"
-	fi
+	ensure_dir "$TARGET_PREFIX_DIR"
+	ensure_dir "$TARGET_LIB_DIR"
 
-	if [ ! -d "$native_dir" ]; then
-		mkdir -p "$native_dir"
-	fi
+	# Enforce flat prefix structure (/usr/local -> /).
+	[[ -e "$TARGET_PREFIX_DIR/usr" ]] || ln -s . "$TARGET_PREFIX_DIR/usr"
+	[[ -e "$TARGET_PREFIX_DIR/local" ]] || ln -s . "$TARGET_PREFIX_DIR/local"
 
-	local cpu_family=${ndk_triple%%-*}
+	local cpu_family="${ndk_triple%%-*}"
 
-	# meson wants to be spoonfed this file, so create it ahead of time
-	# also define: release build, static libs and no source downloads at runtime(!!!)
-	cat >"$prefix_dir/crossfile.txt" <<CROSSFILE
+	# Meson needs this cross file to avoid host auto-detection.
+	cat >"$TARGET_PREFIX_DIR/crossfile.txt" <<CROSSFILE
 [built-in options]
 buildtype = 'release'
 default_library = 'static'
@@ -99,28 +106,63 @@ endian = 'little'
 CROSSFILE
 }
 
-build() {
-	if [ ! -d $DEPS_DIR/$1 ]; then
-		printf >&2 '\e[1;31m%s\e[m\n' "Target $1 not found"
-		exit 1
+build_target() {
+	local target="$1"
+	local target_dir="$DEPS_DIR/$target"
+	local script_path="$BUILDSCRIPTS_DIR/scripts/$target.sh"
+
+	if [[ -n "${BUILT_TARGETS[$target]:-}" ]]; then
+		return
 	fi
-	printf >&2 '\e[1;34m%s\e[m\n' "Preparing $1..."
-	local deps=$(getdeps $1)
-	echo >&2 "Dependencies: $deps"
-	for dep in $deps; do
-		build $dep
+	if [[ -n "${ACTIVE_TARGETS[$target]:-}" ]]; then
+		die "Dependency cycle detected on target: $target"
+	fi
+	[[ -f "$script_path" ]] || die "Build script missing: $script_path"
+
+	ACTIVE_TARGETS[$target]=1
+
+	local deps_var="dep_${target//-/_}[@]"
+	local deps=()
+	local deps_line="${!deps_var-}"
+	if [[ -n "$deps_line" ]]; then
+		read -r -a deps <<<"$deps_line"
+	fi
+
+	log_info "Preparing $target..."
+	if [[ "${#deps[@]}" -eq 0 ]]; then
+		echo >&2 "Dependencies: <none>"
+	else
+		echo >&2 "Dependencies: ${deps[*]}"
+	fi
+	for dep in "${deps[@]}"; do
+		build_target "$dep"
 	done
 
-	printf >&2 '\e[1;34m%s\e[m\n' "Building $1..."
-	pushd $DEPS_DIR/$1
-	$BUILDSCRIPTS_DIR/scripts/$1.sh
-	popd
+	log_info "Building $target..."
+	if [[ -d "$target_dir" ]]; then
+		run_in_dir "$target_dir" "$script_path"
+	else
+		log_info "Using virtual target: $(basename "${script_path%.sh}")"
+		"$script_path"
+	fi
+
+	unset "ACTIVE_TARGETS[$target]"
+	BUILT_TARGETS[$target]=1
 }
 
-for arch in ${archs[@]}; do
-	loadarch $arch
-	setup_prefix
-	build mpv
-done
+build_native_components() {
+	for arch in ${archs[@]}; do
+		load_arch $arch
+		setup_prefix
+		build_target "${BUILD_TARGET:-libmedia_kit_native_event_loop}"
+		"$BUILDSCRIPTS_DIR/pack.sh"
+	done
+}
 
-exit 0
+main() {
+	prepare_workspace
+	prepare_dependencies
+	build_native_components
+}
+
+main "$@"

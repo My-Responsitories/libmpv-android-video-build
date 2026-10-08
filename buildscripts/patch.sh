@@ -1,19 +1,44 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 set -euo pipefail
 
-PATCHES=($BUILDSCRIPTS_DIR/patches/*)
+export BUILDSCRIPTS_DIR="${BUILDSCRIPTS_DIR:-$(realpath "$(dirname "${BASH_SOURCE[0]}")")}"
+source "$BUILDSCRIPTS_DIR/include/path.sh"
+source "$BUILDSCRIPTS_DIR/include/common.sh"
 
-for dep_path in "${PATCHES[@]}"; do
-	patches=($dep_path/*)
-	dep=$(basename $dep_path)
-	pushd deps/$dep
-	echo Patching $dep
+apply_dep_patches() {
+	local dep_path="$1"
+	local dep_name
+	dep_name="$(basename "$dep_path")"
+	local deps_root="${DEPS_DIR:-deps}"
+	local dep_dir="$deps_root/$dep_name"
+
+	if [[ ! -d "$dep_dir" ]]; then
+		log_info "Skipping patches for missing dependency: $dep_name"
+		return
+	fi
+
+	mapfile -t dep_patches < <(find "$dep_path" -maxdepth 1 -type f | sort)
+	if [[ "${#dep_patches[@]}" -eq 0 ]]; then
+		return
+	fi
+
+	pushd "$dep_dir" >/dev/null
+	log_info "Patching $dep_name"
 	git reset --hard
-	for patch in "${patches[@]}"; do
-		echo Applying $patch
-		git apply $patch
+	git clean -fdx
+	for patch in "${dep_patches[@]}"; do
+		log_info "Applying $patch"
+		git apply "$patch"
 	done
-	popd
-done
+	popd >/dev/null
+}
 
-exit 0
+main() {
+	local dep_path
+	for dep_path in "$BUILDSCRIPTS_DIR"/patches/*; do
+		[[ -d "$dep_path" ]] || continue
+		apply_dep_patches "$dep_path"
+	done
+}
+
+main "$@"

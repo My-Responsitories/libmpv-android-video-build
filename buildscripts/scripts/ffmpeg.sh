@@ -1,8 +1,12 @@
 #!/bin/bash -e
+: "${BUILDSCRIPTS_DIR:?BUILDSCRIPTS_DIR is not set}"
+source "$BUILDSCRIPTS_DIR/include/common.sh"
+
 DAV1D_CONFIG=
 if [ -n "$ENABLE_DAV1D" ]; then
 	DAV1D_CONFIG="--enable-libdav1d --enable-decoder=libdav1d"
 fi
+: "${TARGET_PREFIX_DIR:?TARGET_PREFIX_DIR is not set}"
 
 mkdir -p $build_dir
 pushd $build_dir
@@ -14,7 +18,7 @@ cpu=armv7-a
 cpuflags=
 [[ "$ndk_triple" == "arm"* ]] && cpuflags="$cpuflags -mfpu=neon -mcpu=cortex-a8"
 
-../configure \
+NDK_WRAPPER_DISABLED=1 ../configure \
 	--target-os=android \
 	--enable-cross-compile \
 	--cross-prefix=$ndk_triple- \
@@ -25,8 +29,8 @@ cpuflags=
 	--arch=${ndk_triple%%-*} \
 	--cpu=$cpu \
 	--pkg-config=pkg-config \
-	--extra-cflags="-I$prefix_dir/include $cpuflags" \
-	--extra-ldflags="-L$prefix_dir/lib" \
+	--extra-cflags="-I$TARGET_PREFIX_DIR/include $cpuflags" \
+	--extra-ldflags="-L$TARGET_PREFIX_DIR/lib" \
 	\
 	--disable-gpl \
 	--disable-nonfree \
@@ -171,6 +175,6 @@ cpuflags=
 	$CUSTOM_FFMPEG_OPTIONS
 
 $_MAKE
-DESTDIR="$prefix_dir" $_MAKE install
+DESTDIR="$TARGET_PREFIX_DIR" $_MAKE install
 
 popd

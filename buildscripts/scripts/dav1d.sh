@@ -1,9 +1,10 @@
 #!/bin/bash -e
 unset CC CXX # meson wants these unset
+: "${TARGET_PREFIX_DIR:?TARGET_PREFIX_DIR is not set}"
 
-$_MESON \
+NDK_WRAPPER_DISABLED=1 $_MESON \
 	-Denable_tests=false \
 	-Dstack_alignment=16
 
 $_NINJA
-DESTDIR="$prefix_dir" $_NINJA install
+DESTDIR="$TARGET_PREFIX_DIR" $_NINJA install

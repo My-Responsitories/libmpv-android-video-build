@@ -1,56 +1,86 @@
-#!/bin/bash -e
-source $BUILDSCRIPTS_DIR/include/depinfo.sh
-
+#!/usr/bin/env bash
 set -euo pipefail
 
-# Dependencies
-pip install meson
+export BUILDSCRIPTS_DIR="${BUILDSCRIPTS_DIR:-$(realpath "$(dirname "${BASH_SOURCE[0]}")")}"
+source "$BUILDSCRIPTS_DIR/include/path.sh"
+source "$BUILDSCRIPTS_DIR/include/common.sh"
+source "$BUILDSCRIPTS_DIR/include/depinfo.sh"
 
-GIT_CLONE="git clone -c advice.detachedHead=false --depth 1 --single-branch --no-tags"
+ensure_meson() {
+	if command -v meson >/dev/null 2>&1; then
+		return
+	fi
+	log_info "Installing meson..."
+	python3 -m pip install meson
+}
 
-mkdir -p $DEPS_DIR
-pushd $DEPS_DIR
+clone_repo() {
+	local dest="$1"
+	local branch="$2"
+	local url="$3"
+	shift 3
 
-# mpv
-$GIT_CLONE -b v$v_mpv https://github.com/mpv-player/mpv.git mpv &
+	git clone --depth 1 --single-branch --no-tags -b "$branch" "$@" "$url" "$dest"
+}
 
-# ffmpeg
-$GIT_CLONE -b n$v_ffmpeg https://github.com/FFmpeg/FFmpeg.git ffmpeg &
+clean_repo() {
+	local repo_dir="$1"
 
-if [ -n "$ENABLE_DAV1D" ]; then
-	# dav1d
-	$GIT_CLONE -b $v_dav1d https://code.videolan.org/videolan/dav1d.git dav1d &
-fi
+	log_info "Cleaning existing source: $repo_dir"
+	pushd "$repo_dir" >/dev/null
+	git reset --hard
+	git clean -fdx
+	git submodule foreach --recursive git reset --hard
+	git submodule foreach --recursive git clean -fdx
+	popd >/dev/null
+}
 
-# mbedtls
-$GIT_CLONE -b v$v_mbedtls --recurse-submodules --shallow-submodules https://github.com/Mbed-TLS/mbedtls.git mbedtls &
+queue_clone() {
+	local dest="$1"
 
-# libwebp
-$GIT_CLONE -b v$v_libwebp https://github.com/webmproject/libwebp.git libwebp &
+	if [[ -d "$dest/.git" ]]; then
+		clean_repo "$dest" &
+		return
+	fi
+	if [[ -e "$dest" ]]; then
+		log_info "Removing non-git source tree: $dest"
+		rm -rf "$dest"
+	fi
 
-# libass
-$GIT_CLONE -b $v_libass https://github.com/libass/libass.git libass &
+	clone_repo "$@" &
+}
 
-# freetype2
-$GIT_CLONE -b VER-$v_freetype https://gitlab.freedesktop.org/freetype/freetype.git freetype &
+queue_default_repos() {
+	queue_clone "mpv" "v$v_mpv" "https://github.com/mpv-player/mpv.git"
+	queue_clone "ffmpeg" "n$v_ffmpeg" "https://github.com/FFmpeg/FFmpeg.git"
+	queue_clone "mbedtls" "v$v_mbedtls" "https://github.com/Mbed-TLS/mbedtls.git" --recurse-submodules --shallow-submodules
+	queue_clone "libwebp" "v$v_libwebp" "https://github.com/webmproject/libwebp.git"
+	queue_clone "libass" "$v_libass" "https://github.com/libass/libass.git"
+	queue_clone "freetype" "VER-$v_freetype" "https://gitlab.freedesktop.org/freetype/freetype.git"
+	queue_clone "fribidi" "v$v_fribidi" "https://github.com/fribidi/fribidi.git"
+	queue_clone "harfbuzz" "$v_harfbuzz" "https://github.com/harfbuzz/harfbuzz.git"
+	queue_clone "libplacebo" "v$v_libplacebo" "https://code.videolan.org/videolan/libplacebo.git" --recurse-submodules --shallow-submodules
+	queue_clone "media_kit" "native" "https://github.com/My-Responsitories/media-kit.git"
+}
 
-# fribidi
-$GIT_CLONE -b v$v_fribidi https://github.com/fribidi/fribidi.git fribidi &
+queue_optional_repos() {
+	if is_enabled "ENABLE_DAV1D"; then
+		queue_clone "dav1d" "$v_dav1d" "https://code.videolan.org/videolan/dav1d.git"
+	fi
 
-# harfbuzz
-$GIT_CLONE -b $v_harfbuzz https://github.com/harfbuzz/harfbuzz.git harfbuzz &
+	if is_enabled "ENABLE_VULKAN"; then
+		# shaderc is provided by the NDK source tree and does not need cloning.
+		ensure_dir "$DEPS_DIR/shaderc"
+	fi
+}
 
-# libplacebo
-$GIT_CLONE -b v$v_libplacebo --recurse-submodules --shallow-submodules https://code.videolan.org/videolan/libplacebo.git libplacebo &
+download_all_repos() {
+	queue_default_repos
+	queue_optional_repos
+	wait
+}
 
-if [ -n "$ENABLE_VULKAN" ]; then
-	# shaderc
-	mkdir -p shaderc
-fi
+ensure_meson
+ensure_dir "$DEPS_DIR"
 
-# media_kit
-$GIT_CLONE -b native https://github.com/My-Responsitories/media-kit.git media_kit &
-
-wait
-
-popd
+run_in_dir "$DEPS_DIR" download_all_repos
