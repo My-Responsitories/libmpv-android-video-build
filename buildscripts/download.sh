@@ -48,9 +48,6 @@ if [ -n "$ENABLE_VULKAN" ]; then
 	mkdir -p shaderc
 fi
 
-# media-kit-android-helper
-$GIT_CLONE -b main https://github.com/media-kit/media-kit-android-helper.git media-kit-android-helper &
-
 # media_kit
 $GIT_CLONE -b native https://github.com/My-Responsitories/media-kit.git media_kit &
 

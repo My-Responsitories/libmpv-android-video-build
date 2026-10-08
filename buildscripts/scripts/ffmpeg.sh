@@ -152,6 +152,7 @@ cpuflags=
 	--enable-protocol=async \
 	--enable-protocol=cache \
 	--enable-protocol=crypto \
+	--enable-protocol=data \
 	--enable-protocol=file \
 	--enable-protocol=hls \
 	--enable-protocol=http \

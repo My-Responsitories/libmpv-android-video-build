@@ -38,23 +38,6 @@ $BUILDSCRIPTS_DIR/build.sh
 
 # --------------------------------------------------
 
-pushd deps/media-kit-android-helper
-
-chmod +x gradlew
-# Build all ABIs - the external media-kit-android-helper project doesn't properly support
-# the -Pandroid.injected.build.abi filter from command line, so we build all and extract only arm64-v8a
-./gradlew assembleRelease
-
-unzip -q -o app/build/outputs/apk/release/app-release.apk -d app/build/outputs/apk/release
-
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/arm64-v8a/libmediakitandroidhelper.so"    "$ROOT_DIR/libmpv/src/main/jniLibs/arm64-v8a"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/armeabi-v7a/libmediakitandroidhelper.so"  "$ROOT_DIR/libmpv/src/main/jniLibs/armeabi-v7a"
-ln -sf "$(pwd)/app/build/outputs/apk/release/lib/x86_64/libmediakitandroidhelper.so"       "$ROOT_DIR/libmpv/src/main/jniLibs/x86_64"
-
-popd
-
-# --------------------------------------------------
-
 pushd deps/media_kit/media_kit_native_event_loop
 
 flutter create --org com.alexmercerind --template plugin_ffi --platforms=android .
