@@ -111,9 +111,6 @@ build_target() {
 	local target_dir="$DEPS_DIR/$target"
 	local script_path="$BUILDSCRIPTS_DIR/scripts/$target.sh"
 
-	if [[ -n "${BUILT_TARGETS[$target]:-}" ]]; then
-		return
-	fi
 	if [[ -n "${ACTIVE_TARGETS[$target]:-}" ]]; then
 		die "Dependency cycle detected on target: $target"
 	fi
@@ -147,7 +144,6 @@ build_target() {
 	fi
 
 	unset "ACTIVE_TARGETS[$target]"
-	BUILT_TARGETS[$target]=1
 }
 
 build_native_components() {
