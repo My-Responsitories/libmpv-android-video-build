@@ -5,7 +5,6 @@ export BUILDSCRIPTS_DIR="${BUILDSCRIPTS_DIR:-$(realpath "$(dirname "${BASH_SOURC
 source "$BUILDSCRIPTS_DIR/include/path.sh"
 source "$BUILDSCRIPTS_DIR/include/common.sh"
 
-readonly TARGET_ABI="${TARGET_ABI:-arm64-v8a}"
 readonly TARGET_LIB_DIR="${TARGET_LIB_DIR:-$BUILD_DIR/output/lib/$TARGET_ABI}"
 readonly OUTPUT_JAR="$BUILD_DIR/output/default-$TARGET_ABI.jar"
 

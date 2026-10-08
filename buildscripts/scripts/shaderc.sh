@@ -3,7 +3,7 @@
 
 application_mk=$PWD/../../../app/src/main/jni/Application.mk # APP_{PLATFORM,STL} are imported from here
 
-abi=arm64-v8a
+abi=$TARGET_ABI
 
 # build using the NDK's scripts, but keep object files in our build dir
 pushd $ANDROID_NDK_LATEST_HOME/sources/third_party/shaderc
