@@ -11,6 +11,8 @@ readonly OUTPUT_JAR="$BUILD_DIR/output/default-$TARGET_ABI.jar"
 stage_shared_objects() {
 	local so_file_count
 
+	log_info "TARGET_ABI=$TARGET_ABI, BUILD_DIR=$BUILD_DIR, TARGET_LIB_DIR=$TARGET_LIB_DIR, OUTPUT_JAR=$OUTPUT_JAR"
+
 	require_file \
 		"$TARGET_LIB_DIR/libmedia_kit_native_event_loop.so"
 

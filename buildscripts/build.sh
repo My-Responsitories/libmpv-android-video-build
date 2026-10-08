@@ -155,6 +155,7 @@ build_native_components() {
 		load_arch $arch
 		setup_prefix
 		build_target "${BUILD_TARGET:-libmedia_kit_native_event_loop}"
+		log_info "Build $arch done."
 		"$BUILDSCRIPTS_DIR/pack.sh"
 	done
 }

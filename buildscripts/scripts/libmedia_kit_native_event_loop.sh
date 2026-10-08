@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo compile libmedia_kit_native_event_loop
+
 : "${DEPS_DIR:?DEPS_DIR is not set}"
 : "${BUILD_DIR:?BUILD_DIR is not set}"
 : "${TARGET_ABI:?TARGET_ABI is not set}"
