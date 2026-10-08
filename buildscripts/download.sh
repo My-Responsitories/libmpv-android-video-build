@@ -7,10 +7,9 @@ source "$BUILDSCRIPTS_DIR/include/common.sh"
 source "$BUILDSCRIPTS_DIR/include/depinfo.sh"
 
 ensure_meson() {
-	if command -v meson >/dev/null 2>&1; then
-		return
-	fi
-	log_info "Installing meson..."
+	log_info "Installing nasm meson..."
+	sudo apt-get update
+	sudo apt-get install -y nasm
 	python3 -m pip install meson
 }
 
