@@ -14,12 +14,12 @@ DEFAULT_APPEND_FLAGS = [
 ]
 
 
-def split_env_flags(key):
+def split_env_flags(key:str):
     value = os.getenv(key, "").strip()
     return value.split() if value else []
 
 
-def find_last_optimization_flag(args):
+def find_last_optimization_flag(args:list[str]):
     last_flag = None
     for arg in args:
         if arg.startswith("-O"):
@@ -28,14 +28,14 @@ def find_last_optimization_flag(args):
 
 
 class CompilerWrapper:
-    def __init__(self, argv):
+    def __init__(self, argv:list[str]):
         self.argv0 = argv[0]
         self.args = argv[1:]
         compiler_name = self.detect_compiler_name(Path(self.argv0).name)
         self.real_compiler = self.resolve_real_compiler(compiler_name)
 
     @staticmethod
-    def detect_compiler_name(invocation_name):
+    def detect_compiler_name(invocation_name:str):
         if invocation_name.endswith("-clang++"):
             return "clang++"
         if invocation_name.endswith("-clang"):
@@ -43,41 +43,26 @@ class CompilerWrapper:
         return invocation_name
 
     @staticmethod
-    def resolve_real_compiler(compiler_name):
+    def resolve_real_compiler(compiler_name:str):
         bin_dir = Path(__file__).resolve().parent
         backup = bin_dir / f"{compiler_name}_"
         if backup.exists():
             return backup
         return bin_dir / compiler_name
 
-    def check_target(self):
-        i = len(self.args) - 1
-        while i >= 0:
-            arg = self.args[i]
-            if arg.startswith("-target=") or arg.startswith("--target="):
-                value = arg.split("=", 1)[1]
-                return value.startswith("aarch64")
-            elif arg == "-target" or arg == "--target":
-                if i + 1 < len(self.args):
-                    return self.args[i + 1].startswith("aarch64")
-                return False
-            i -= 1
-        return False
-
     def should_skip_customization(self):
         return (
             os.getenv("NDK_WRAPPER_DISABLED") == "1" or
             len(self.args) <= 2 or
             "-cc1" in self.args or
-            "-cc1as" in self.args or
-            not self.check_target()
+            "-cc1as" in self.args
         )
 
     def build_prepend_flags(self):
         return [*split_env_flags("NDK_WRAPPER_PREPEND")]
 
     def build_append_flags(self):
-        append_flags = []
+        append_flags:list[str] = []
         env_append_flags = split_env_flags("NDK_WRAPPER_APPEND")
         if os.getenv("NDK_WRAPPER_DISABLED") != "2":
             effective_opt = find_last_optimization_flag(self.args)
@@ -103,7 +88,8 @@ class CompilerWrapper:
         os.execv(self.real_compiler, execargs)
 
 
-def main(argv):
+def main(argv:list[str]):
+    print('wrapper call')
     wrapper = CompilerWrapper(argv)
     wrapper.invoke_compiler()
 
